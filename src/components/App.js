@@ -1,22 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import GlobalStyles from './GlobalStyles';
 import Home from './Home';
 import Game from './Game';
+import GameContextProvider from './GameContext'
+
+import {items} from './Data';
+import { GameContext } from './GameContext';
 
 function App(props) {
   return (
     <>
       <GlobalStyles />
-      <Router>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route path="/game">
-          <Game />
-        </Route>
-      </Router>
+      <GameContextProvider children={
+          <Router>
+            <Route exact path="/">
+              <Home />
+            </Route>
+            <Route path="/game">
+              <Game />
+            </Route>
+          </Router>
+        }
+      />
     </>
   );
 }
