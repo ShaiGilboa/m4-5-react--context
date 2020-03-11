@@ -213,7 +213,7 @@ You'll notice that we've **removed all props** from the `<Game />` element. Your
 
 Last workshop included many stretch goals. Start by tackling them!
 
-### Calculating cookies earned while away
+### Calculaing cookies earned while away
 
 Let's say the user earns 100 cookies per second, and has 500 cookies. They close their tab, and reopen it in 10 seconds. Instead of restoring their cookie total to 500, it should initialize with 1500 cookies; the user should still earn their cookies-per-second while not using the app
 
