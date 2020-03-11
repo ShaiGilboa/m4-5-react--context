@@ -48,6 +48,37 @@ const MainContent = () => {
   );
 };
 ```
+```js
+const App = () => {
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  return (
+    <>
+      <Header
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}/>
+      <MainContent searchTerm={searchTerm}/>
+    </>
+  );
+};
+
+const Header = ({searchTerm, setSearchTerm}) => {
+  return (
+    <header>
+      <Logo />
+      <SearchInput value={searchTerm} onChange={setSearchTerm} />
+    </header>
+  );
+};
+
+const MainContent = ({searchTerm}) => {
+  return (
+    <main>
+      Search results for {searchTerm}
+    </main>
+  );
+};
+```
 
 ---
 
