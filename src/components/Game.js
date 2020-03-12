@@ -8,17 +8,23 @@ import useInterval from '../hooks/use-interval.hook';
 import cookieSrc from '../cookie.svg';
 import Item from './Item';
 
-import {items} from './Data';
-
-
 const Game = () => {
-  const { numCookies, setNumCookies, purchasedItems, setPurchasedItems, cookiesPerSecond } = React.useContext(GameContext)
-  // const { purchasedItems, setPurchasedItems } = React.useContext(PurchasedItemsContext)
-  // const { useInterval } = React.useContext(IntervalContext)
-  const incrementCookies = () => {
-    setNumCookies(c => c + 1);
-  };
+  const {
+    numCookies,
+    setNumCookies,
+    purchasedItems,
+    cookiesPerSecond,
+    incrementCookies,
+    handleAttemptedPurchase,
+    gameItems,
+    usePersistedState,
+    strongerClickWorth,
+    clear
+  } = React.useContext(GameContext)
 
+  const [gameTime, setGameTime] = usePersistedState((new Date()).getTime(), "gameTime")
+
+// change title of page
   React.useEffect(() => {
     document.title = `${numCookies} cookies - Cookie Clicker Workshop`;
 
@@ -26,7 +32,7 @@ const Game = () => {
       document.title = 'Cookie Clicker Workshop';
     };
   }, [numCookies]);
-
+// handleKeydown, space->inrecment cookies
   React.useEffect(() => {
     const handleKeydown = ev => {
       if (ev.code === 'Space') {
@@ -41,22 +47,42 @@ const Game = () => {
     };
   });
 
+  // update cookies by new Date()
+  React.useEffect(() => {
+    const nowTime = (new Date()).getTime();
+    const timeDiff = (nowTime - gameTime)/1000;
+    const numOfGeneratedCookies = cookiesPerSecond * timeDiff
+    setNumCookies(Math.round((numCookies + numOfGeneratedCookies) * 10) / 10)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
+
+  //game interval
+  useInterval(() => {
+    const numOfGeneratedCookies = cookiesPerSecond;
+    setGameTime((new Date()).getTime())
+    setNumCookies(Math.round((numCookies + numOfGeneratedCookies) * 10) / 10);
+  }, 1000);
+
+  
+
   return (
     <Wrapper>
       <GameArea>
         <Indicator>
-          <Total>{numCookies} cookies</Total>
-          <strong>{cookiesPerSecond}</strong> cookies
-          per second
+          <Total><p>{numCookies}</p> cookies</Total>
+          <p><strong>{cookiesPerSecond}</strong> cookies
+          per second</p>
+          <p><strong>{1+strongerClickWorth()}</strong> cookies
+          per click</p>
         </Indicator>
-        <Button onClick={incrementCookies}>
+        <Button onClick={()=>incrementCookies()}>
           <Cookie src={cookieSrc} />
         </Button>
       </GameArea>
 
       <ItemArea>
         <SectionTitle>Items:</SectionTitle>
-        {items.map((item, index) => {
+        {gameItems.map((item, index) => {
           return (
             <Item
               key={item.id}
@@ -64,22 +90,16 @@ const Game = () => {
               name={item.name}
               cost={item.cost}
               value={item.value}
+              type={item.type}
+              id={item.id}
               numOwned={purchasedItems[item.id]}
-              handleAttemptedPurchase={() => {
-                if (numCookies < item.cost) {
-                  alert('Cannot afford item');
-                  return;
-                }
-
-                setNumCookies(numCookies - item.cost);
-                setPurchasedItems({
-                  ...purchasedItems,
-                  [item.id]: purchasedItems[item.id] + 1
-                });
-              }}
+              handleAttemptedPurchase={handleAttemptedPurchase}
             />
           );
         })}
+        <Button className="clear" onClick={()=>clear()}>
+          clear
+        </Button>
       </ItemArea>
       <HomeLink to="/">Return home</HomeLink>
     </Wrapper>
@@ -101,15 +121,19 @@ const Button = styled.button`
   cursor: pointer;
   transform-origin: center center;
 
+  & .clear{
+    width:100px;
+    height:100px;
+    color:white;
+    position:absolute;
+  }
   &:active {
     transform: scale(0.9);
   }
 `;
-
 const Cookie = styled.img`
   width: 200px;
 `;
-
 const ItemArea = styled.div`
   height: 100%;
   padding-right: 20px;
@@ -117,13 +141,11 @@ const ItemArea = styled.div`
   flex-direction: column;
   justify-content: center;
 `;
-
 const SectionTitle = styled.h3`
   text-align: center;
   font-size: 32px;
   color: yellow;
 `;
-
 const Indicator = styled.div`
   position: absolute;
   width: 250px;
@@ -133,12 +155,10 @@ const Indicator = styled.div`
   margin: auto;
   text-align: center;
 `;
-
 const Total = styled.h3`
   font-size: 28px;
   color: lime;
 `;
-
 const HomeLink = styled(Link)`
   position: absolute;
   top: 15px;

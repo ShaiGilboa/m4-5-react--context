@@ -1,13 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import GlobalStyles from './GlobalStyles';
 import Home from './Home';
 import Game from './Game';
 import GameContextProvider from './GameContext'
-
-import {items} from './Data';
-import { GameContext } from './GameContext';
 
 function App(props) {
   return (

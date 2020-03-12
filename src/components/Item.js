@@ -6,6 +6,8 @@ const Item = ({
   name,
   cost,
   value,
+  type,
+  id,
   numOwned,
   handleAttemptedPurchase
 }) => {
@@ -16,13 +18,15 @@ const Item = ({
       ref.current.focus();
     }
   }, [index]);
-
+  const info = `Cost: ${cost} cookies.`
+  const info2 = `Each produces ${numOwned===0 ? '0' : value} more cookies/${type==='production'? 'second' : 'click'}`
   return (
-    <Wrapper ref={ref} onClick={handleAttemptedPurchase}>
+    <Wrapper ref={ref} onClick={() => handleAttemptedPurchase({ cost, id })}>
       <Left>
         <Name>{name}</Name>
         <Info>
-          Cost: {cost} cookie(s). Produces {value} cookies/second.
+          <p>{info}</p>
+          <p>{info2}</p>
         </Info>
       </Left>
       <Right>{numOwned}</Right>
