@@ -22,30 +22,39 @@ const App = () => {
 
   return (
     <>
-      <Home />
+      <Home
+        user={user}
+        setUser={setUser}
+      />
       <Sidebar user={user} />
     </>
   );
 };
 
-const Home = () => {
+const Home = ({user, setUser}) => {
   return (
     <>
-      <Header />
+      <Header 
+        user={user}
+        setUser={setUser}
+      />
       <MainContent />
     </>
   );
 };
 
-const Header = () => {
+const Header = ({user, setUser}) => {
   return (
     <header>
-      <Navigation />
+      <Navigation
+        user={user}
+        setUser={setUser}
+      />
     </header>
   );
 };
 
-const Navigation = () => {
+const Navigation = ({user, setUser}) => {
   return (
     <nav>
       <ul>
@@ -58,7 +67,10 @@ const Navigation = () => {
           </li>
         ) : (
           <li>
-            <LoginDialogTrigger />
+            <LoginDialogTrigger
+              user={user}
+              setUser={setUser}
+            />
           </li>
         )}
       </ul>
@@ -66,7 +78,7 @@ const Navigation = () => {
   );
 };
 
-const LoginDialogTrigger = () => {
+const LoginDialogTrigger = ({user, setUser}) => {
   // Some stuff to show a button and handle showing
   // the dialog on click
 
@@ -192,7 +204,56 @@ const Navigation = ({ user, setUser }) => {
   );
 };
 ```
+```jsx
+export const userContext = React.createContext(null)
 
+const App = () => {
+  const [user, setUser] = React.useState({ username: 'Alfalfa' });
+
+  return (
+    <userContext.provider value={{user, setUser}}>
+      <Home />;
+    </userContext.provider>
+};
+
+const Home = () => {
+  return (
+    <>
+      <Header />
+      <MainContent />
+    </>
+  );
+};
+
+const Header = () => {
+  return (
+    <header>
+      <Navigation/>
+    </header>
+  );
+};
+
+const Navigation = () => {
+  const { user, setUser } = React.useContext(userContext)
+  return (
+    <nav>
+      <ul>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/about">About</Link>
+        </li>
+        {user && (
+          <li>
+            <button onClick={() => setUser(null)}>Log out</button>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
+```
 ---
 
 ```jsx
@@ -228,7 +289,40 @@ const Dialog = ({ currentDialog }) => {
   return <div>{/* Do stuff with currentDialog */}</div>;
 };
 ```
+```jsx
+const export DialogContext = React.createContext(null)
+const App = () => {
+  const [dialog, setDialog] = React.useState(null);
 
+  return (
+    <DialogContext value={{dialog, setDialog}}>
+      <MainContent setDialog={setDialog} />
+      <Dialog currentDialog={dialog} />
+    </DialogContext>
+  );
+};
+
+const MainContent = ({ setDialog }) => {
+  return (
+    <>
+      <Sidebar>
+        <Link>Home</Link>
+        <Link>About</Link>
+        <LogInButton afterLogin={() => setDialog('login-success')} />
+      </Sidebar>
+      <Main>Stuff</Main>
+    </>
+  );
+};
+
+const Dialog = ({ currentDialog }) => {
+  if (!currentDialog) {
+    return null;
+  }
+
+  return <div>{/* Do stuff with currentDialog */}</div>;
+};
+```
 ---
 
 ```js live=true
@@ -289,7 +383,63 @@ const TextInput = ({ label, value, setValue }) => {
 
 render(<App />);
 ```
+```js live=true
+export const CountNameContext = React.createContext(null)
 
+const App = () => {
+  const [count, setCount] = React.useState(0);
+  const [name, setName] = React.useState('');
+
+  const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+
+  return (
+    <CountNameContext.provider value={{count, name, setName, increment, decrement}}>
+      Playing as: {name}
+      <CountDisplay />
+      <Actions />
+    </CountNameProvider>
+  );
+};
+
+const CountDisplay = () => {
+  const count = React.useContext(CountNameContext)
+  return <h1>{count} clicks!</h1>;
+};
+
+const Actions = () => {
+  const { increment, decrement, name, setName } = React.useContext(CountNameContext)
+  return (
+    <div>
+      <TextInput label="Name" value={name} setValue={setName} />
+
+      <Action onClick={increment}>Increment</Action>
+      <Action onClick={decrement}>Decrement</Action>
+    </div>
+  );
+};
+
+// NO NEED TO TWEAK ANYTHING BELOW THIS POINT
+
+const Action = ({ onClick, children }) => {
+  return <button onClick={onClick}>{children}</button>;
+};
+
+const TextInput = ({ label, value, setValue }) => {
+  return (
+    <label>
+      {label}
+      <input
+        type="text"
+        value={value}
+        onChange={ev => setValue(ev.target.value)}
+      />
+    </label>
+  );
+};
+
+render(<App />);
+```
 ---
 
 # Context vs. Props
